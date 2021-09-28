@@ -7,7 +7,7 @@ connectDB();
 const companyRoute = require("./routes/companyRoute");
 const staffRoute = require("./routes/staffRoute");
 
-app.use(morgan("tiny"));
+app.use(morgan("tiny")); 
 app.use(express.json());
 
 app.use("/api/company", companyRoute);
