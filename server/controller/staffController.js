@@ -56,7 +56,7 @@ exports.createStaff = async (req, res) => {
 exports.companyStaff = async (req, res) => {
   const id = req.params.companyId;
   try {
-    const getStaff = await Staff.find({ staffCompanyId: id });
+    const getStaff = await Staff.find({ staffCompanyId: id }).populate("staffCompanyId");
     res.status(200).json(getStaff);
   } catch (error) {
     console.log(error);
@@ -99,5 +99,19 @@ exports.createAdmin = async (req, res) => {
   }
 };
 
-//update admin status
-exports.genPass = async (req, res) => {};
+
+exports.staffLogin = async (req, res) => {
+  const staffCompanyId = req.params.companyId;
+  const { staffEmail, staffPassword } = req.body
+      if (!staffEmail || !staffPassword) res.status(400).json({success: false})
+  try{
+    const staff = await Staff.findOne({staffCompanyId, staffEmail}).select("+staffPassword")
+    if(!staff) res.status(404).json({success: false, message: "Staff not found"})
+
+    const isMatch = await staff.matchPasswords(staffPassword)
+    isMatch ? res.status(200).json({success: true, message: "login successful", staff}) : res.status(404).json({success: false, message: "Staff not found"})
+  }catch(error){
+    res.status(500).json(error)
+  }
+
+};

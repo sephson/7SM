@@ -25,7 +25,7 @@ const staffSchema = new mongoose.Schema(
     staffPassword: {
       type: String,
       required: true,
-      select: true,
+      select: false,
       minlength: 5,
     },
     staffRank: {
@@ -65,6 +65,12 @@ staffSchema.pre("save", async function (next) {
   this.staffPassword = await bcrypt.hash(this.staffPassword, salt);
   next();
 });
+
+staffSchema.methods.matchPasswords = async function(staffPassword){
+  return await bcrypt.compare(staffPassword, this.staffPassword)
+}
+
+
 
 const Staff = mongoose.model("Staff", staffSchema);
 
