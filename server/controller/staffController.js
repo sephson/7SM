@@ -1,5 +1,6 @@
 const Company = require("../model/companyModel");
-const Staff = require("../Model/staffModel");
+const Staff = require("../model/staffModel");
+const ErrorResponse = require("../utils/errorResponse");
 
 //create a staff
 exports.createStaff = async (req, res) => {
@@ -46,7 +47,8 @@ exports.createStaff = async (req, res) => {
     const data = await Staff.findOne({ _id: staff._id }).populate(
       "staffCompanyId"
     );
-    res.status(201).json({ randomPassword: pass, data });
+    sendTokenReg(data, 201, res, pass);
+    // res.status(201).json({ randomPassword: pass, data });
   } catch (error) {
     console.log(error);
   }
@@ -56,7 +58,9 @@ exports.createStaff = async (req, res) => {
 exports.companyStaff = async (req, res) => {
   const id = req.params.companyId;
   try {
-    const getStaff = await Staff.find({ staffCompanyId: id }).populate("staffCompanyId");
+    const getStaff = await Staff.find({ staffCompanyId: id }).populate(
+      "staffCompanyId"
+    );
     res.status(200).json(getStaff);
   } catch (error) {
     console.log(error);
@@ -99,19 +103,56 @@ exports.createAdmin = async (req, res) => {
   }
 };
 
-
 exports.staffLogin = async (req, res) => {
   const staffCompanyId = req.params.companyId;
-  const { staffEmail, staffPassword } = req.body
-      if (!staffEmail || !staffPassword) res.status(400).json({success: false})
-  try{
-    const staff = await Staff.findOne({staffCompanyId, staffEmail}).select("+staffPassword")
-    if(!staff) res.status(404).json({success: false, message: "Staff not found"})
+  const { staffEmail, staffPassword } = req.body;
+  if (!staffEmail || !staffPassword)
+    return new ErrorResponse("Input email or password", 400);
+  try {
+    const staff = await Staff.findOne({ staffCompanyId, staffEmail }).select(
+      "+staffPassword"
+    );
+    if (!staff)
+      res.status(404).json({ success: false, message: "Staff not found" });
 
-    const isMatch = await staff.matchPasswords(staffPassword)
-    isMatch ? res.status(200).json({success: true, message: "login successful", staff}) : res.status(404).json({success: false, message: "Staff not found"})
-  }catch(error){
-    res.status(500).json(error)
+    const isMatch = await staff.matchPasswords(staffPassword);
+    isMatch
+      ? sendToken(staff, 201, res)
+      : res.status(404).json({ success: false, message: "Staff not found" });
+  } catch (error) {
+    res.status(500).json(error);
   }
+};
 
+exports.forgotPassword = async (req, res, next) => {
+  const { staffEmail } = req.body;
+
+  try {
+    const staff = await Staff.findOne({ staffEmail });
+    if (!staff) return next(new ErrorResponse("Email not sent", 404));
+
+    const resetToken = staff.getResetPasswordToken();
+    await staff.save();
+
+    const resetUrl = `http://localhost:3000/passwordreset/${resetToken}`;
+
+    const message = `
+    <h1>You have requested for a password reset </h1>
+    <p>Please go to this link to reset your password </p>
+    <a href= ${resetUrl} clicktracking=off>${resetUrl}</a>
+    `;
+
+    try {
+    } catch (error) {}
+  } catch (error) {}
+};
+
+const sendToken = (staff, statusCode, res) => {
+  const token = staff.getSignedToken();
+  res.status(statusCode).json({ success: true, token });
+};
+
+const sendTokenReg = (staff, statusCode, res, random) => {
+  const token = staff.getSignedToken();
+  res.status(statusCode).json({ success: true, token, random });
 };

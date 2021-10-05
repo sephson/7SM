@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 
 const staffSchema = new mongoose.Schema(
   {
@@ -66,11 +67,27 @@ staffSchema.pre("save", async function (next) {
   next();
 });
 
-staffSchema.methods.matchPasswords = async function(staffPassword){
-  return await bcrypt.compare(staffPassword, this.staffPassword)
-}
+staffSchema.methods.matchPasswords = async function (staffPassword) {
+  return await bcrypt.compare(staffPassword, this.staffPassword);
+};
 
+staffSchema.methods.getSignedToken = function () {
+  return jwt.sign({ id: this._id }, process.env.JWT_SECRET, {
+    expiresIn: process.env.JWT_EXPIRE,
+  });
+};
 
+staffSchema.methods.getResetPasswordToken = function () {
+  const resetToken = crypto.randomBytes(20).toString("hex");
+  this.resetPasswordToken = crypto
+    .createHash("sha256")
+    .update(resetToken)
+    .digest("hex");
+
+  this.resetPasswordExpire = Date.now() + 10 * (60 * 1000);
+
+  return resetToken;
+};
 
 const Staff = mongoose.model("Staff", staffSchema);
 
