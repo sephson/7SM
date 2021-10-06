@@ -1,6 +1,8 @@
 const Company = require("../model/companyModel");
 const Staff = require("../model/staffModel");
 const ErrorResponse = require("../utils/errorResponse");
+const sendMail = require("../utils/sendEmail");
+const crypto = require("crypto");
 
 //create a staff
 exports.createStaff = async (req, res) => {
@@ -30,25 +32,31 @@ exports.createStaff = async (req, res) => {
       }
       return password;
     }
-    const pass = genPass();
-    const staff = await Staff.create({
-      staffName,
-      staffCompanyId,
-      staffEmail,
-      staffPassword: pass,
-      staffRank,
-      staffAge,
-      staffPicture,
-      staffDept,
-      isAdmin,
-      staffSalary,
-    });
-    console.log(pass);
-    const data = await Staff.findOne({ _id: staff._id }).populate(
-      "staffCompanyId"
-    );
-    sendTokenReg(data, 201, res, pass);
-    // res.status(201).json({ randomPassword: pass, data });
+    const checkEmail = await Staff.findOne({ staffEmail });
+    if (!checkEmail) {
+      const pass = genPass();
+      const staff = await Staff.create({
+        staffName,
+        staffCompanyId,
+        staffEmail,
+        staffPassword: pass,
+        staffRank,
+        staffAge,
+        staffPicture,
+        staffDept,
+        isAdmin,
+        staffSalary,
+      });
+      console.log(pass);
+      const data = await Staff.findOne({ _id: staff._id }).populate(
+        "staffCompanyId"
+      );
+      sendTokenReg(data, 201, res, pass);
+    } else {
+      res
+        .status(403)
+        .json({ success: false, message: "This email already exist" });
+    }
   } catch (error) {
     console.log(error);
   }
@@ -124,27 +132,37 @@ exports.staffLogin = async (req, res) => {
   }
 };
 
-exports.forgotPassword = async (req, res, next) => {
-  const { staffEmail } = req.body;
+exports.forgotPassword = async (req, res, next) => {};
+
+exports.resetPassword = async (req, res) => {
+  const { staffId } = req.params;
+  const { staffPassword, staffEmail, newPassword } = req.body;
+
+  if (!staffPassword || !newPassword) {
+    res.status(403).json({
+      success: false,
+      message: "Input correct previous pass and enter new password",
+    });
+  }
 
   try {
-    const staff = await Staff.findOne({ staffEmail });
-    if (!staff) return next(new ErrorResponse("Email not sent", 404));
+    const staff = await Staff.findOne({ staffEmail }).select("+staffPassword");
+    if (!staff)
+      res.status(404).json({ success: false, message: "Staff not found" });
 
-    const resetToken = staff.getResetPasswordToken();
-    await staff.save();
+    const isMatch = await staff.matchPasswords(staffPassword);
 
-    const resetUrl = `http://localhost:3000/passwordreset/${resetToken}`;
+    if (isMatch) {
+      const updated = await Staff.updateOne({ staffPassword: newPassword });
+      console.log(newPassword);
 
-    const message = `
-    <h1>You have requested for a password reset </h1>
-    <p>Please go to this link to reset your password </p>
-    <a href= ${resetUrl} clicktracking=off>${resetUrl}</a>
-    `;
-
-    try {
-    } catch (error) {}
-  } catch (error) {}
+      res.status(200).json({ success: true, message: "password updated" });
+    } else {
+      res.status(400).json({ success: false, message: "something went wrong" });
+    }
+  } catch (error) {
+    console.log(error);
+  }
 };
 
 const sendToken = (staff, statusCode, res) => {
