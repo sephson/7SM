@@ -50,6 +50,10 @@ const staffSchema = new mongoose.Schema(
     staffSalary: {
       type: Number,
     },
+    isDeactivated: {
+      type: Boolean,
+      default: false,
+    },
     resetPasswordToken: String,
     resetPasswordExpire: Date,
   },

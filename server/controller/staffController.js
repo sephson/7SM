@@ -138,7 +138,7 @@ exports.resetPassword = async (req, res) => {
   const staffCompanyId = req.params.companyId;
   const { staffPassword, staffEmail, newPassword } = req.body;
 
-  if (!staffPassword || !newPassword) {
+  if (!staffPassword || !newPassword || !staffEmail) {
     res.status(403).json({
       success: false,
       message: "Input correct previous pass and enter new password",
@@ -146,7 +146,9 @@ exports.resetPassword = async (req, res) => {
   }
 
   try {
-    const staff = await Staff.findOne({ staffEmail }).select("+staffPassword");
+    const staff = await Staff.findOne({ staffCompanyId, staffEmail }).select(
+      "+staffPassword"
+    );
     if (!staff)
       res.status(404).json({ success: false, message: "Staff not found" });
 
@@ -163,9 +165,41 @@ exports.resetPassword = async (req, res) => {
       res.status(400).json({ success: false, message: "something went wrong" });
     }
   } catch (error) {
-    console.log(error);
+    if (error.name === "CastError")
+      res
+        .status(500)
+        .json({ error: error.message.slice(0, 23), check: error.path });
+    else res.status(500).json(error);
   }
 };
+
+//make existing staff admin
+exports.updateStaffToAdmin = async (req, res) => {
+  const staffCompanyId = req.params.companyId;
+  const { staffEmail } = req.body;
+  try {
+    const allStaff = await Staff.find({ staffCompanyId });
+    const admins = allStaff.filter((staff) => staff.isAdmin === true);
+    const staff = await Staff.findOne({ staffCompanyId, staffEmail });
+    if (staff.isAdmin === false && admins.length < 3) {
+      await staff.updateOne({ $set: { isAdmin: true } });
+      res
+        .status(200)
+        .json({ success: true, message: `${staff.staffName} is now an Admin` });
+    } else {
+      res
+        .status(403)
+        .json({ success: false, message: "sorry cant make you an admin" });
+    }
+  } catch (error) {
+    res.status(500).json(error);
+  }
+};
+
+exports.removeAdmin = async (req, res) => {
+  const staffCompanyId = req.params.companyId;
+  const { staffEmail } = req.body;
+}
 
 const sendToken = (staff, statusCode, res) => {
   const token = staff.getSignedToken();
