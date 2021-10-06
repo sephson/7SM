@@ -135,7 +135,7 @@ exports.staffLogin = async (req, res) => {
 exports.forgotPassword = async (req, res, next) => {};
 
 exports.resetPassword = async (req, res) => {
-  const { staffId } = req.params;
+  const staffCompanyId = req.params.companyId;
   const { staffPassword, staffEmail, newPassword } = req.body;
 
   if (!staffPassword || !newPassword) {
@@ -153,8 +153,10 @@ exports.resetPassword = async (req, res) => {
     const isMatch = await staff.matchPasswords(staffPassword);
 
     if (isMatch) {
-      const updated = await Staff.updateOne({ staffPassword: newPassword });
-      console.log(newPassword);
+      staff.staffPassword = newPassword;
+      console.log(staff.staffPassword);
+      console.log(staffPassword);
+      await staff.save();
 
       res.status(200).json({ success: true, message: "password updated" });
     } else {
@@ -167,7 +169,7 @@ exports.resetPassword = async (req, res) => {
 
 const sendToken = (staff, statusCode, res) => {
   const token = staff.getSignedToken();
-  res.status(statusCode).json({ success: true, token });
+  res.status(statusCode).json({ success: true, staff, token });
 };
 
 const sendTokenReg = (staff, statusCode, res, random) => {
