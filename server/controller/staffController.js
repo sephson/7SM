@@ -197,9 +197,38 @@ exports.updateStaffToAdmin = async (req, res) => {
 };
 
 exports.removeAdmin = async (req, res) => {
-  const staffCompanyId = req.params.companyId;
-  const { staffEmail } = req.body;
-}
+  const { companyId, staffId } = req.params;
+
+  try {
+    const staff = await Staff.findOne({
+      _id: staffId,
+      staffCompanyId: companyId,
+    });
+
+    if (!staff)
+      return res
+        .status(404)
+        .json({ success: false, message: "staff not found" });
+    else {
+      if (staff.isAdmin === false)
+        return res
+          .status(400)
+          .json({ success: false, message: "this user is not an admin" });
+      else if (staff.isAdmin === true) {
+        await staff.updateOne({ $set: { isAdmin: false } });
+      }
+
+      res
+        .status(200)
+        .json({
+          status: 200,
+          message: `successfully removed ${staff.staffName} as an admin`,
+        });
+    }
+  } catch (error) {
+    res.status(500).json(error);
+  }
+};
 
 const sendToken = (staff, statusCode, res) => {
   const token = staff.getSignedToken();

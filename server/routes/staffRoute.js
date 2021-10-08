@@ -11,6 +11,7 @@ const {
   forgotPassword,
   resetPassword,
   updateStaffToAdmin,
+  removeAdmin
 } = staffController;
 
 router.route("/:companyId/add").post(createStaff);
@@ -21,4 +22,5 @@ router.route("/:companyId/staffLogin").post(staffLogin);
 router.route("/forgotPassword").post(forgotPassword);
 router.route("/:companyId/resetPassword").put(resetPassword);
 router.route("/:companyId/updateToAdmin").put(updateStaffToAdmin);
+router.route("/:companyId/:staffId/removeAdmin").put(removeAdmin);
 module.exports = router;
