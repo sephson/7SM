@@ -26,3 +26,22 @@ exports.createFamilySpace = async (req, res) => {
     res.status(500).json(error);
   }
 };
+
+exports.addUserToFamilySpace = async (req, res) => {
+  const { displayName } = req.body;
+  const id = req.params.familyId;
+  try {
+    const user = await User.find({ displayName });
+    if (user) {
+      await Family.updateOne({
+        $push: { members: user._id },
+      });
+      const family = await Family.find({ _id: id }).populate(members);
+      res.status(201).json({ success: true, family });
+    } else {
+      res.status(404).json({ success: false, message: "user doesnt exist" });
+    }
+  } catch (error) {
+    res.status(500).json({ success: false, error });
+  }
+};
