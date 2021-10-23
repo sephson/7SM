@@ -37,10 +37,6 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
-    familySpaces: {
-      type: Array,
-      default: [],
-    },
     resetPasswordToken: String,
     resetPasswordExpire: Date,
   },

@@ -47,7 +47,7 @@ exports.login = async (req, res) => {
   if (!email || !password)
     return new ErrorResponse("Input email or password", 400);
   try {
-    const user = await User.findOne({ email }).select("+staffPassword");
+    const user = await User.findOne({ email }).select("+password");
     if (!user)
       res.status(404).json({ success: false, message: "user not found" });
 
@@ -60,7 +60,18 @@ exports.login = async (req, res) => {
   }
 };
 
+exports.userDetails = async (req, res) => {
+  const display = req.params.displayName;
+  console.log(display);
+  try {
+    const user = await User.find({ displayName: display });
+    res.status(200).json(user);
+  } catch (error) {
+    res.status(500).json(error);
+  }
+};
+
 const sendToken = (user, statusCode, res) => {
   const token = user.getSignedToken();
-  res.status(statusCode).json({ success: true, user, token });
+  res.status(statusCode).json({ success: true, token });
 };
