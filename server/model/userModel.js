@@ -3,18 +3,16 @@ const Schema = mongoose.Schema;
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
-const staffSchema = new mongoose.Schema(
+const userSchema = new mongoose.Schema(
   {
-    staffName: {
+    name: {
       type: String,
       required: true,
     },
-    staffCompanyId: {
-      type: Schema.Types.ObjectId,
-      ref: "Company",
-      required: true,
+    displayName: {
+      type: String,
     },
-    staffEmail: {
+    email: {
       type: String,
       required: true,
       unique: true,
@@ -23,36 +21,25 @@ const staffSchema = new mongoose.Schema(
         "Please provide a valid email",
       ],
     },
-    staffPassword: {
+    password: {
       type: String,
       required: true,
       select: false,
       minlength: 5,
     },
-    staffRank: {
-      type: String,
-      // required: true,
-    },
-    staffAge: {
+    age: {
       type: Number,
-      // required: true,
     },
-    staffPicture: {
-      type: String,
-    },
-    staffDept: {
+    picture: {
       type: String,
     },
     isAdmin: {
       type: Boolean,
       default: false,
     },
-    staffSalary: {
-      type: Number,
-    },
-    isDeactivated: {
-      type: Boolean,
-      default: false,
+    familySpaces: {
+      type: Array,
+      default: [],
     },
     resetPasswordToken: String,
     resetPasswordExpire: Date,
@@ -60,28 +47,28 @@ const staffSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-staffSchema.pre("save", async function (next) {
-  if (!this.isModified("staffPassword")) {
+userSchema.pre("save", async function (next) {
+  if (!this.isModified("password")) {
     next();
   }
 
   const salt = await bcrypt.genSalt(10);
-  //setting the staffpassword from the controller to its hashed version
-  this.staffPassword = await bcrypt.hash(this.staffPassword, salt);
+  //setting the password from the controller to its hashed version
+  this.password = await bcrypt.hash(this.password, salt);
   next();
 });
 
-staffSchema.methods.matchPasswords = async function (staffPassword) {
-  return await bcrypt.compare(staffPassword, this.staffPassword);
+userSchema.methods.matchPasswords = async function (password) {
+  return await bcrypt.compare(password, this.password);
 };
 
-staffSchema.methods.getSignedToken = function () {
+userSchema.methods.getSignedToken = function () {
   return jwt.sign({ id: this._id }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRE,
   });
 };
 
-staffSchema.methods.getResetPasswordToken = function () {
+userSchema.methods.getResetPasswordToken = function () {
   const resetToken = crypto.randomBytes(20).toString("hex");
   this.resetPasswordToken = crypto
     .createHash("sha256")
@@ -93,6 +80,6 @@ staffSchema.methods.getResetPasswordToken = function () {
   return resetToken;
 };
 
-const Staff = mongoose.model("Staff", staffSchema);
+const User = mongoose.model("User", userSchema);
 
-module.exports = Staff;
+module.exports = User;
