@@ -7,7 +7,7 @@ exports.uploadImages = async (req, res) => {
   const { image } = req.files;
   console.log(image);
   try {
-    const result = upload(image.name);
+    const result = await upload(image.tempFilePath);
     res.status(200).json(result);
   } catch (error) {
     res.status(500).json(error);

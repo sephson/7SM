@@ -12,7 +12,12 @@ const errorHandler = require("./middleware/error");
 
 app.use(morgan("dev"));
 app.use(express.json());
-app.use(fileUpload());
+app.use(
+  fileUpload({
+    useTempFiles: true,
+    tempFileDir: "/tmp/",
+  })
+);
 
 app.use("/api/user", userRoute);
 app.use("/api/family", familyRoute);
