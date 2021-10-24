@@ -1,0 +1,35 @@
+.sidebar {
+  border: solid 1px #f5f3f4;
+  height: 100rem;
+  padding: 1rem;
+  border-left: none;
+  border-top: none;
+  border-bottom: none;
+}
+
+.logo {
+  color: #e5383b;
+}
+
+.sidebar-menu {
+  margin: 1.3rem 0rem;
+  display: flex;
+  gap: 0.7rem;
+  cursor: pointer;
+}
+
+.ui-icon:hover {
+  fill: #e5383b;
+}
+
+.sidebar-menu:hover {
+  color: #e5383b;
+}
+
+.family-name {
+  margin: 1.5rem 0rem;
+  border: solid 1px #f5f3f4;
+  padding: 1rem 0 1rem 0;
+  border-left: none;
+  border-right: none;
+}

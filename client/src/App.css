@@ -1,3 +1,7 @@
-.App {
-  text-align: center;
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Crete Round", serif;
+  color: #5e5e5e;
 }

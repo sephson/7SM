@@ -1,0 +1,30 @@
+.main {
+  background-color: #f5f3f457;
+  padding: 1rem;
+}
+
+.welcome-text {
+  color: #e5383b;
+}
+
+.profile-image {
+  height: 4%;
+  border-radius: 50%;
+  object-fit: contain;
+}
+
+.top {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.image-and-name {
+  display: flex;
+  justify-content: right;
+  gap: 1rem;
+}
+
+.display {
+  font-weight: bold;
+  margin-top: 0.7rem;
+}
