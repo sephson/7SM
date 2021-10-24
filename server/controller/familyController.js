@@ -5,10 +5,7 @@ const ErrorResponse = require("../utils/errorResponse");
 exports.createFamilySpace = async (req, res) => {
   const { familyName, createdBy } = req.body;
   try {
-    const checkId = await User.findOneAndUpdate(
-      { _id: createdBy },
-      { $set: { isAdmin: true } }
-    );
+    const checkId = await User.findOneAndUpdate({ _id: createdBy });
     if (!checkId) {
       res.status(401).json({ success: false, message: "user doesnt exist" });
     } else {
@@ -61,9 +58,14 @@ exports.addUserToFamilySpace = async (req, res) => {
 };
 
 exports.getUserFamilySpaces = async (req, res) => {
+  const { userId } = req.params;
   try {
-    const family = await Family.find({}).populate("members");
-    res.status(200).json(family.members);
+    const family = await Family.find({});
+    const familySpaces = family.filter((fam) => fam.members.includes(userId));
+
+    familySpaces.length === 0
+      ? res.status(200).json("user is not in any family space")
+      : res.status(200).json(familySpaces);
   } catch (error) {
     res.status(500).json(error);
   }
@@ -77,6 +79,6 @@ exports.familySpaceDetails = async (req, res) => {
       .populate("createdBy");
     res.status(200).json(family);
   } catch (error) {
-    res.status(500).json(error)
+    res.status(500).json(error);
   }
 };

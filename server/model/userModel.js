@@ -33,10 +33,6 @@ const userSchema = new mongoose.Schema(
     picture: {
       type: String,
     },
-    isAdmin: {
-      type: Boolean,
-      default: false,
-    },
     resetPasswordToken: String,
     resetPasswordExpire: Date,
   },

@@ -11,7 +11,7 @@ const {
 
 router.route("/create").post(createFamilySpace);
 router.route("/:familyId/addToFamilySpace").put(addUserToFamilySpace);
-router.route("/familySpaces").get(getUserFamilySpaces);
+router.route("/:userId/familySpaces").get(getUserFamilySpaces);
 router.route("/:familyId/familyDetails").get(familySpaceDetails);
 
 module.exports = router;
