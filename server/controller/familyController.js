@@ -5,7 +5,7 @@ const ErrorResponse = require("../utils/errorResponse");
 exports.createFamilySpace = async (req, res) => {
   const { familyName, createdBy } = req.body;
   try {
-    const checkId = await User.findOneAndUpdate({ _id: createdBy });
+    const checkId = await User.findOne({ _id: createdBy });
     if (!checkId) {
       res.status(401).json({ success: false, message: "user doesnt exist" });
     } else {
@@ -14,10 +14,10 @@ exports.createFamilySpace = async (req, res) => {
         createdBy,
       });
       await family.updateOne({ $push: { members: createdBy } });
-      const findFam = await Family.find({ _id: family._id })
+      const createdFamily = await Family.find({ _id: family._id })
         .populate("createdBy")
         .populate("members");
-      res.status(201).json({ success: true, findFam });
+      res.status(201).json({ success: true, createdFamily });
     }
   } catch (error) {
     res.status(500).json(error);
