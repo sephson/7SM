@@ -1,13 +1,13 @@
 import React from "react";
-import { Main } from "../../components/main/main";
+import { Photo } from "../../components/photos/photo";
 import { Sidebar } from "../../components/sidebar/sidebar";
-import "./Home.css";
+import "./Gallery.css";
 
-export const Home = () => {
+export const Gallery = () => {
   return (
     <div className="page-layout">
       <Sidebar />
-      <Main />
+      <Photo />
     </div>
   );
 };

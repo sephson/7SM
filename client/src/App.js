@@ -1,10 +1,21 @@
 import "./App.css";
+import { Gallery } from "./pages/Gallery/Gallery";
 import { Home } from "./pages/Home/Home";
+import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 
 function App() {
   return (
     <div className="App">
-      <Home />
+      <Router>
+        <Switch>
+          <Route path="/" exact>
+            <Home />
+          </Route>
+          <Route path="/gallery">
+            <Gallery />
+          </Route>
+        </Switch>
+      </Router>
     </div>
   );
 }
