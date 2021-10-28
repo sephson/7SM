@@ -16,6 +16,7 @@
   display: flex;
   gap: 0.7rem;
   cursor: pointer;
+  align-items: center;
 }
 
 .ui-icon:hover {

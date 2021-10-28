@@ -5,3 +5,11 @@
   font-family: "Roboto", sans-serif;
   color: #5e5e5e;
 }
+
+a {
+  text-decoration: none;
+}
+
+li {
+  list-style: none;
+}
