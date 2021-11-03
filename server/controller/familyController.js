@@ -1,5 +1,6 @@
 const Family = require("../model/familySpaceModel");
 const Request = require("../model/requestModel");
+const Room = require("../model/roomModel");
 const User = require("../model/userModel");
 const ErrorResponse = require("../utils/errorResponse");
 
@@ -18,7 +19,11 @@ exports.createFamilySpace = async (req, res) => {
       const createdFamily = await Family.find({ _id: family._id })
         .populate("createdBy")
         .populate("members");
-      res.status(201).json({ success: true, createdFamily });
+      const newRoom = await Room.create({
+        familySpace: family._id,
+        members: createdBy,
+      });
+      res.status(201).json({ success: true, createdFamily, newRoom });
     }
   } catch (error) {
     res.status(500).json(error);
