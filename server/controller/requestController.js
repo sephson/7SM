@@ -47,6 +47,16 @@ exports.invites = async (req, res) => {
     .json({ success: true, total: allMyInvites.length, allMyInvites });
 };
 
+exports.viewAllSentInvite = async (req, res) => {
+  const { userId } = req.params;
+  const allMyInvites = await FamilyRequest.find({ requestSender: userId })
+    .populate("requestReceiver")
+    .populate("familySpace");
+  res
+    .status(200)
+    .json({ success: true, total: allMyInvites.length, allMyInvites });
+};
+
 exports.acceptInvite = async (req, res) => {
   const { familyId } = req.params;
   const { userId } = req.body;
@@ -67,3 +77,5 @@ exports.acceptInvite = async (req, res) => {
     res.status(500).json({ success: false, error });
   }
 };
+
+exports.rejectInvite = async (req, res) => {};
