@@ -1,4 +1,5 @@
 const Family = require("../model/familySpaceModel");
+const Request = require("../model/requestModel");
 const User = require("../model/userModel");
 const ErrorResponse = require("../utils/errorResponse");
 
@@ -24,38 +25,7 @@ exports.createFamilySpace = async (req, res) => {
   }
 };
 
-exports.addUserToFamilySpace = async (req, res) => {
-  const { displayName } = req.body;
-  const id = req.params.familyId;
-  try {
-    const user = await User.findOne({ displayName });
-    const family = await Family.findOne({ _id: id });
-    console.log();
-    if (user && family) {
-      if (!family.members.includes(user._id)) {
-        await family.updateOne({
-          $push: { members: user._id },
-        });
-        res.status(200).json({
-          success: true,
-          message: `successfully added ${user.displayName}`,
-        });
-      } else {
-        res.status(403).json({
-          sucess: false,
-          message: `${user.displayName} is already in this family space`,
-        });
-      }
-    } else {
-      res.status(404).json({
-        success: false,
-        message: "user or family doesnt exist",
-      });
-    }
-  } catch (error) {
-    res.status(500).json({ success: false, error });
-  }
-};
+
 
 exports.getUserFamilySpaces = async (req, res) => {
   const { userId } = req.params;

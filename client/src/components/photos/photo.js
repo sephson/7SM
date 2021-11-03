@@ -27,7 +27,7 @@ export const Photo = () => {
           return (
             <li className="image-container">
               <img className="gallery-image" src={pic.src} alt="gallery" />
-              {/* <p>{pic.postedBy}</p> */}
+              <p className="postedby">{pic.postedBy}</p>
             </li>
           );
         })}
