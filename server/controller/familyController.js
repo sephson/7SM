@@ -25,8 +25,6 @@ exports.createFamilySpace = async (req, res) => {
   }
 };
 
-
-
 exports.getUserFamilySpaces = async (req, res) => {
   const { userId } = req.params;
   try {
@@ -47,7 +45,9 @@ exports.familySpaceDetails = async (req, res) => {
     const family = await Family.findOne({ _id: familyId })
       .populate("members")
       .populate("createdBy");
-    res.status(200).json(family);
+    res
+      .status(200)
+      .json({ success: true, familySpaceCount: family.members.length, family });
   } catch (error) {
     res.status(500).json(error);
   }

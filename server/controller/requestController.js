@@ -49,12 +49,12 @@ exports.invites = async (req, res) => {
 
 exports.viewAllSentInvite = async (req, res) => {
   const { userId } = req.params;
-  const allMyInvites = await FamilyRequest.find({ requestSender: userId })
+  const sentInvites = await FamilyRequest.find({ requestSender: userId })
     .populate("requestReceiver")
     .populate("familySpace");
   res
     .status(200)
-    .json({ success: true, total: allMyInvites.length, allMyInvites });
+    .json({ success: true, total: sentInvites.length, sentInvites });
 };
 
 exports.acceptInvite = async (req, res) => {
@@ -78,4 +78,25 @@ exports.acceptInvite = async (req, res) => {
   }
 };
 
-exports.rejectInvite = async (req, res) => {};
+exports.rejectInvite = async (req, res) => {
+  const { familyId } = req.params;
+  const { userId } = req.body;
+
+  try {
+    const findInvite = await FamilyRequest.findOne({
+      familySpace: familyId,
+      requestReceiver: userId,
+      requestStatus: "pending",
+    });
+    if (findInvite) {
+      await findInvite.deleteOne();
+      res
+        .status(200)
+        .json({ success: true, message: "successfully rejected request" });
+    } else {
+      res.status(403).json({ success: false, message: "bad request" });
+    }
+  } catch (error) {
+    res.status(500).json({ success: false, error });
+  }
+};
