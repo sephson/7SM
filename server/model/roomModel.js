@@ -14,6 +14,7 @@ const RoomSchema = new mongoose.Schema(
     },
     roomType: {
       type: String,
+      default: "public"
     },
     defaultRoom: {
       type: String,
